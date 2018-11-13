@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-abstract public class WebLogFilter implements Filter {
+abstract public class WebLogFilter<L> implements Filter {
     /**
      * Formatter for timestamps that follows RFC-3339 with forced millisecond precision and offset time zone style.
      */
@@ -31,24 +31,24 @@ abstract public class WebLogFilter implements Filter {
             .appendOffset("+HH:MM", "+00:00")
             .toFormatter(Locale.US);
 
-    private ZoneId UTC = ZoneId.of("UTC");
-
     public static final String WEB_LOG_NAME_PARAMETER = "logName";
 
-    private String logName;
+    abstract public void webLog(final Map<String, String> parameters, final boolean failure, final String message) throws IOException;
 
-    protected String getLogName() {
-        return this.logName == null ? "web" : this.logName;
+    abstract public void setLogger(final String name);
+
+    public void setLogger(L logger) {
+        this.logger = logger;
     }
 
-    abstract void webLog(final Map<String, String> parameters, final boolean failure, final String message) throws IOException;
+    private ZoneId UTC = ZoneId.of("UTC");
+
+    protected L logger;
 
     @Override
     public void init(final FilterConfig filterConfig) throws ServletException {
         final String logName = filterConfig.getInitParameter(WEB_LOG_NAME_PARAMETER);
-        if (logName != null && !logName.isEmpty()) {
-            this.logName = logName;
-        }
+        setLogger(logName == null || logName.isEmpty() ? "web" : logName);
     }
 
     @Override

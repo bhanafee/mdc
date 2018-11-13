@@ -18,12 +18,19 @@ public class WebLogFilterTest {
 
     private WebLogFilter test;
 
+    private class DummyLogger {}
+
     @BeforeEach
     public void createFilter() {
-        this.test = new WebLogFilter() {
+        this.test = new WebLogFilter<DummyLogger>() {
             @Override
-            void webLog(Map<String, String> parameters, boolean failure, String message) throws IOException {
+            public void webLog(Map<String, String> parameters, boolean failure, String message) throws IOException {
                 Assertions.assertEquals("web", parameters.get("logEventType"));
+            }
+
+            @Override
+            public void setLogger(String name) {
+                setLogger(new DummyLogger());
             }
         };
     }
@@ -36,17 +43,13 @@ public class WebLogFilterTest {
     }
 
     @Test
-    public void getLogName_default() {
-        Assertions.assertEquals("web", test.getLogName());
-    }
-
-    @Test
-    public void init_setsLogName() throws ServletException {
+    public void init_setsLog() throws ServletException {
         FilterConfig config = mock(FilterConfig.class);
         when(config.getInitParameter(WebLogFilter.WEB_LOG_NAME_PARAMETER)).thenReturn("testLog");
 
         test.init(config);
-        Assertions.assertEquals("testLog", test.getLogName());
+
+        Assertions.assertNotNull(test.logger);
     }
 
     @Test

@@ -28,7 +28,8 @@ dependencies {
             "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion",
             "org.slf4j:slf4j-api:$slf4jVersion",
             "log4j:log4j:$log4j1Version",
-            "org.apache.logging.log4j:log4j-api:$log4j2Version"
+            "org.apache.logging.log4j:log4j-api:$log4j2Version",
+            "ch.qos.logback:logback-classic:$logbackVersion"
     )
     testRuntimeOnly(
             "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion",

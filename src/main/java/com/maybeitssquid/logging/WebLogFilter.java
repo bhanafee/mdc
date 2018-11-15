@@ -33,7 +33,7 @@ abstract public class WebLogFilter<L> implements Filter {
 
     public static final String WEB_LOG_NAME_PARAMETER = "logName";
 
-    abstract public void webLog(final Map<String, String> parameters, final boolean failure, final String message) throws IOException;
+    abstract public void webLog(final Map<String, String> parameters, final boolean failure, final Throwable throwable) throws IOException;
 
     abstract public void setLogger(final String name);
 
@@ -61,8 +61,7 @@ abstract public class WebLogFilter<L> implements Filter {
             webLog(parameters, failure, null);
         } catch (final IOException | ServletException e) {
             final Map<String, String> parameters = extractWebLogParameters(request, response);
-            // TODO: Add exception parameters
-            webLog(parameters, true, e.getMessage());
+            webLog(parameters, true, e);
             throw e;
         }
     }

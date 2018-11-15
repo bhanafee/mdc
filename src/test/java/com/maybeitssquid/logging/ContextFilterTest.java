@@ -3,6 +3,7 @@ package com.maybeitssquid.logging;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;

@@ -14,15 +14,15 @@ public class Log4jV1WebLogFilter extends WebLogFilter<Logger> {
     }
 
     @Override
-    public void webLog(final Map<String, String> parameters, final boolean failure, final String message) throws IOException {
-        final String m = message == null || message.isEmpty() ? "" : message;
-
+    public void webLog(final Map<String, String> parameters, final boolean failure, final Throwable throwable) throws IOException {
         parameters.forEach((k, v) -> MDC.put(k, v));
 
-        if (failure) {
-            logger.warn(m);
+        if (throwable != null) {
+            logger.warn(throwable.getMessage(), throwable);
+        } else if (failure) {
+            logger.warn("");
         } else {
-            logger.info(m);
+            logger.info("");
         }
 
         parameters.forEach((k, v) -> MDC.remove(k));

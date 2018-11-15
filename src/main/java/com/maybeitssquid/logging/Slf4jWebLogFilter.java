@@ -17,17 +17,17 @@ public class Slf4jWebLogFilter extends WebLogFilter<Logger> {
     }
 
     @Override
-    public void webLog(final Map<String, String> parameters, final boolean failure, final String message) throws IOException {
-        final String m = message == null || message.isEmpty() ? "" : message;
-
+    public void webLog(final Map<String, String> parameters, final boolean failure, final Throwable throwable) throws IOException {
         final ArrayList<MDC.MDCCloseable> closers = new ArrayList<MDC.MDCCloseable>(parameters.size());
         parameters.forEach((k, v) -> closers.add(MDC.putCloseable(k, v)));
 
         try (final Closeable ignore = new Closer(closers)) {
-            if (failure) {
-                this.logger.warn(m);
+            if (throwable != null) {
+                this.logger.warn(throwable.getMessage(), throwable);
+            } else if (failure) {
+                this.logger.warn("");
             } else {
-                this.logger.info(m);
+                this.logger.info("");
             }
         }
     }

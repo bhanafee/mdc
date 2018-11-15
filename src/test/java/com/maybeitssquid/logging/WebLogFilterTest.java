@@ -24,7 +24,7 @@ public class WebLogFilterTest {
     public void createFilter() {
         this.test = new WebLogFilter<DummyLogger>() {
             @Override
-            public void webLog(Map<String, String> parameters, boolean failure, String message) throws IOException {
+            public void webLog(Map<String, String> parameters, boolean failure, Throwable throwable) throws IOException {
                 Assertions.assertEquals("web", parameters.get("logEventType"));
             }
 

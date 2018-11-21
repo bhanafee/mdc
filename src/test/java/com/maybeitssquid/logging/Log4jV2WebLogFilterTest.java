@@ -1,7 +1,7 @@
 package com.maybeitssquid.logging;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.MDC;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.ThreadContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
@@ -10,31 +10,32 @@ import java.io.IOException;
 
 import static org.mockito.Mockito.*;
 
-public class Log4jV1WebLogFilterTest extends AbstractWebLogFilterTest<Logger> {
-    public Log4jV1WebLogFilterTest() {
+public class Log4jV2WebLogFilterTest extends AbstractWebLogFilterTest<Logger> {
+
+    public Log4jV2WebLogFilterTest() {
         super(Logger.class);
     }
 
     @Override
     protected WebLogFilter<Logger> createTestFilter() {
-        return new Log4jV1WebLogFilter();
+        return new Log4jV2WebLogFilter();
     }
 
     @Override
     protected String fromContext(String key) {
-        final Object result = MDC.get(key);
-        return result == null ? null : result.toString();
+        return ThreadContext.get(key);
     }
+
 
     @Override
     @Test
     public void webLog_parametersSetInMDC() throws IOException {
         Answer checkMDC = (ignore) -> {
-            Assertions.assertEquals("test1", MDC.get("key1"));
-            Assertions.assertEquals("test2", MDC.get("key2"));
+            Assertions.assertEquals("test1", ThreadContext.get("key1"));
+            Assertions.assertEquals("test2", ThreadContext.get("key2"));
             return null;
         };
-        doAnswer(checkMDC).when(logger).info("");
+        doAnswer(checkMDC).when(logger).info(anyString());
         super.webLog_parametersSetInMDC();
     }
 
@@ -50,6 +51,6 @@ public class Log4jV1WebLogFilterTest extends AbstractWebLogFilterTest<Logger> {
 
     @Override
     protected void verifyWarnWithThrowable() {
-        verify(logger).warn(any(Throwable.class));
+        verify(logger).warn(anyString(), any(Throwable.class));
     }
 }

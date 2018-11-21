@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.mockito.Mockito.mock;
+
 abstract public class AbstractWebLogFilterTest<L> {
 
     /**
@@ -17,19 +19,38 @@ abstract public class AbstractWebLogFilterTest<L> {
     private WebLogFilter<L> test;
 
     /**
+     * The mock logger used by the test filter
+     */
+    protected L logger;
+
+    /**
+     * Used to initialize the mock logger
+     */
+    private final Class<L> loggerClass;
+
+    public AbstractWebLogFilterTest(final Class<L> loggerClass) {
+        this.loggerClass = loggerClass;
+    }
+
+    /**
+     * Create and initialize the test filter.
+     */
+    @BeforeEach
+    protected void init() {
+        this.logger = mock(this.loggerClass);
+        this.test = createTestFilter();
+        this.test.logger = logger;
+    }
+
+    /**
      * Create a filter to test.
      */
-    abstract WebLogFilter<L> createTestFilter();
+    abstract protected WebLogFilter<L> createTestFilter();
 
     /**
      * Read a value from the implementation-specific MDC.
      */
-    abstract String fromContext(final String key);
-
-    /**
-     * Verify that at the time the log is created the MDC contains key1->test1 and key2->test2
-     */
-    abstract protected void verifyMDCParameters();
+    abstract protected String fromContext(final String key);
 
     /**
      * Verify that a log entry was created at info level.
@@ -42,22 +63,22 @@ abstract public class AbstractWebLogFilterTest<L> {
     abstract protected void verifyWarn();
 
     /**
-     * Create and initialize the test filter.
+     * Verify that a log entry was created with a non-empty message and a throwable at warn level.
      */
-    @BeforeEach
-    protected void init() {
-        this.test = createTestFilter();
-        test.setLogger("test");
-    }
+    abstract protected void verifyWarnWithThrowable();
 
     @Test
     public void setLogger_byStringCreatesLogger() {
-        // Clear any logger from test setup
-        test.logger = null;
+        final L original = test.logger;
         test.setLogger("testLogger");
-        Assertions.assertNotNull(test.logger);
+        Assertions.assertNotSame(original, test.logger);
     }
 
+    /**
+     * Override this test to assert MDC parameters are set within call.
+     *
+     * @throws IOException
+     */
     @Test
     public void webLog_parametersSetInMDC() throws IOException {
         final Map<String, String> parameters = new HashMap<String, String>();
@@ -65,8 +86,6 @@ abstract public class AbstractWebLogFilterTest<L> {
         parameters.put("key2", "test2");
 
         test.webLog(parameters, false, null);
-
-        verifyMDCParameters();
     }
 
     @Test
@@ -96,6 +115,6 @@ abstract public class AbstractWebLogFilterTest<L> {
     @Test
     public void webLog_warnOnExceptionPath() throws IOException {
         test.webLog(Collections.emptyMap(), true, new Throwable("Mock failure"));
-        verifyWarn();
+        verifyWarnWithThrowable();
     }
 }

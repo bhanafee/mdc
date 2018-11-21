@@ -18,11 +18,11 @@ public class Log4jV1WebLogFilter extends WebLogFilter<Logger> {
         parameters.forEach((k, v) -> MDC.put(k, v));
 
         if (throwable != null) {
-            logger.warn(throwable.getMessage(), throwable);
+            this.logger.warn(throwable);
         } else if (failure) {
-            logger.warn("");
+            this.logger.warn("failure");
         } else {
-            logger.info("");
+            this.logger.info("");
         }
 
         parameters.forEach((k, v) -> MDC.remove(k));

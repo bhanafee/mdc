@@ -20,7 +20,7 @@ public class Log4jV2WebLogFilter extends WebLogFilter<Logger> {
             if (throwable != null) {
                 logger.warn(throwable.getMessage(), throwable);
             } else if (failure) {
-                logger.warn("");
+                logger.warn("failure");
             } else {
                 logger.info("");
             }

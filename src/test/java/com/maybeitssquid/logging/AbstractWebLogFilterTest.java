@@ -1,32 +1,59 @@
 package com.maybeitssquid.logging;
 
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.Appender;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static ch.qos.logback.classic.Level.INFO;
-import static ch.qos.logback.classic.Level.WARN;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.Mockito.verify;
+abstract public class AbstractWebLogFilterTest<L> {
 
-abstract public class AbstractWebLogFilterTest<L>  {
+    /**
+     * The filter under test
+     */
+    private WebLogFilter<L> test;
 
-    protected WebLogFilter test;
+    /**
+     * Create a filter to test.
+     */
+    abstract WebLogFilter<L> createTestFilter();
 
-    protected Appender<ILoggingEvent> appender;
-
+    /**
+     * Read a value from the implementation-specific MDC.
+     */
     abstract String fromContext(final String key);
+
+    /**
+     * Verify that at the time the log is created the MDC contains key1->test1 and key2->test2
+     */
+    abstract protected void verifyMDCParameters();
+
+    /**
+     * Verify that a log entry was created at info level.
+     */
+    abstract protected void verifyInfo();
+
+    /**
+     * Verify that a log entry was created with a non-empty message at warn level.
+     */
+    abstract protected void verifyWarn();
+
+    /**
+     * Create and initialize the test filter.
+     */
+    @BeforeEach
+    protected void init() {
+        this.test = createTestFilter();
+        test.setLogger("test");
+    }
 
     @Test
     public void setLogger_byStringCreatesLogger() {
-        test.setLogger((Logger) null);
+        // Clear any logger from test setup
+        test.logger = null;
         test.setLogger("testLogger");
         Assertions.assertNotNull(test.logger);
     }
@@ -39,9 +66,7 @@ abstract public class AbstractWebLogFilterTest<L>  {
 
         test.webLog(parameters, false, null);
 
-        verify(this.appender).doAppend(argThat(arg ->
-                arg.getMDCPropertyMap().get("key1").equals("test1") &&
-                        arg.getMDCPropertyMap().get("key2").equals("test2")));
+        verifyMDCParameters();
     }
 
     @Test
@@ -59,21 +84,17 @@ abstract public class AbstractWebLogFilterTest<L>  {
     @Test
     public void webLog_infoOnSuccessPath() throws IOException {
         test.webLog(Collections.emptyMap(), false, null);
-        verify(this.appender).doAppend(argThat(arg ->
-                INFO.equals(arg.getLevel()) && arg.getMessage().isEmpty()));
+        verifyInfo();
     }
 
     @Test
     public void webLog_warnOnFailurePath() throws IOException {
         test.webLog(Collections.emptyMap(), true, null);
-        verify(this.appender).doAppend(argThat(arg ->
-                WARN.equals(arg.getLevel()) && arg.getMessage().isEmpty()));
     }
 
     @Test
     public void webLog_warnOnExceptionPath() throws IOException {
         test.webLog(Collections.emptyMap(), true, new Throwable("Mock failure"));
-        verify(this.appender).doAppend(argThat(arg ->
-                WARN.equals(arg.getLevel()) && !arg.getMessage().isEmpty()));
+        verifyWarn();
     }
 }

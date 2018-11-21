@@ -25,7 +25,7 @@ public class Slf4jWebLogFilter extends WebLogFilter<Logger> {
             if (throwable != null) {
                 this.logger.warn(throwable.getMessage(), throwable);
             } else if (failure) {
-                this.logger.warn("");
+                this.logger.warn("failure");
             } else {
                 this.logger.info("");
             }

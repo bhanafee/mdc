@@ -3,7 +3,7 @@ apply plugin: 'java'
 buildscript {
     ext {
         servletVersion = '3.1.+'
-        slf4jVersion = '1.+'
+        slf4jVersion = '1.7+'
         logbackVersion = '1.3+'
         log4j1Version = '1.2.+'
         log4j2Version = '2.+'
@@ -26,14 +26,15 @@ dependencies {
     testImplementation(
             "org.mockito:mockito-core:$mockitoVersion",
             "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion",
-            "org.slf4j:slf4j-api:$slf4jVersion",
+            "ch.qos.logback:logback-classic:$logbackVersion",
             "log4j:log4j:$log4j1Version",
-            "org.apache.logging.log4j:log4j-api:$log4j2Version",
-            "ch.qos.logback:logback-classic:$logbackVersion"
+            "org.apache.logging.log4j:log4j-api:$log4j2Version"
+    )
+    testCompileOnly(
+            "org.slf4j:slf4j-api:$slf4jVersion"
     )
     testRuntimeOnly(
-            "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion",
-            "ch.qos.logback:logback-classic:$logbackVersion"
+            "org.junit.jupiter:junit-jupiter-engine:$junitJupiterVersion"
     )
 }
 

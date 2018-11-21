@@ -90,6 +90,7 @@ abstract public class AbstractWebLogFilterTest<L> {
     @Test
     public void webLog_warnOnFailurePath() throws IOException {
         test.webLog(Collections.emptyMap(), true, null);
+        verifyWarn();
     }
 
     @Test
